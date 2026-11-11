@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Karakter Steve di Proyek HTML Saya</title>
+  <!-- Pastikan ada Three.js di proyek Anda -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background: #1a1a24; }
+    canvas { width: 100vw; height: 100vh; display: block; }
+  </style>
+</head>
+<body>
+
+  <canvas id="myCanvas"></canvas>
+
+  <script>
+    // =========================================================================
+    // MODUL KARAKTER: SIMPAN / SALIN BAGIAN INI KE PROYEK HTML ANDA
+    // =========================================================================
+    function createMinecraftSteve() {
+      const character = new THREE.Group();
+      character.name = "MinecraftSteve";
+
+      // Palet Warna Terpilih
+      const colors = {
+        skin: 0xc68a5c,
+        shirt: 0x009688, // Cyan Klasik
+        pants: 0x273b80, // Biru Steve
+        shoes: 0x333333,
+        hairMain: 0x3a2315,
+        hairDark: 0x22150d,
+        eyeIris: 0x2649a3,
+        eyebrow: 0x22140c,
+        strap: 0x1f2427, // Tali Basalt Netherite
+        bag: 0x323a3e,   // Tas Lempeng Netherite
+        lava: 0xff3d00   // Gesper Lava Menyala
+      };
+
+      const createMat = (color, emissive = 0x000000) => 
+        new THREE.MeshLambertMaterial({ color, emissive });
+
+      // ----------------------------------------------------
+      // 1. KEPALA & WAJAH (Steve Klasik)
+      // ----------------------------------------------------
+      const headGroup = new THREE.Group();
+      headGroup.position.set(0, 24, 0);
+
+      const headMesh = new THREE.Mesh(new THREE.BoxGeometry(8, 8, 8), createMat(colors.skin));
+      headMesh.position.set(0, 4, 0);
+      headMesh.castShadow = true;
+      headGroup.add(headMesh);
+
+      // Rambut Steve Klasik Rapi
+      const hairMat = createMat(colors.hairMain);
+      const hairDarkMat = createMat(colors.hairDark);
+
+      const hairTop = new THREE.Mesh(new THREE.BoxGeometry(8.5, 1.5, 8.5), hairMat);
+      hairTop.position.set(0, 7.3, 0);
+      headGroup.add(hairTop);
+
+      const hairBack = new THREE.Mesh(new THREE.BoxGeometry(8.5, 5.8, 0.6), hairDarkMat);
+      hairBack.position.set(0, 4.4, -4.05);
+      headGroup.add(hairBack);
+
+      const hairSideL = new THREE.Mesh(new THREE.BoxGeometry(0.6, 4.8, 6.8), hairMat);
+      hairSideL.position.set(-4.05, 4.8, -0.6);
+      headGroup.add(hairSideL);
+
+      const hairSideR = new THREE.Mesh(new THREE.BoxGeometry(0.6, 4.8, 6.8), hairMat);
+      hairSideR.position.set(4.05, 4.8, -0.6);
+      headGroup.add(hairSideR);
+
+      const steveFringe = new THREE.Mesh(new THREE.BoxGeometry(8.5, 1.5, 0.5), hairMat);
+      steveFringe.position.set(0, 6.45, 4.15);
+      headGroup.add(steveFringe);
+
+      const cornerL = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.8, 0.52), hairDarkMat);
+      cornerL.position.set(-3.4, 5.4, 4.16);
+      headGroup.add(cornerL);
+
+      const cornerR = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.8, 0.52), hairDarkMat);
+      cornerR.position.set(3.4, 5.4, 4.16);
+      headGroup.add(cornerR);
+
+      // Mata Simetris Menatap Lurus
+      const eyeZ = 4.06, eyeY = 3.2;
+      const eyeWhiteMat = createMat(0xffffff);
+      const pupilMat = createMat(colors.eyeIris);
+
+      const eyeWL = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.9, 0.08), eyeWhiteMat);
+      eyeWL.position.set(-2.4, eyeY, eyeZ);
+      const eyePL = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.9, 0.1), pupilMat);
+      eyePL.position.set(-1.35, eyeY, eyeZ);
+      headGroup.add(eyeWL); headGroup.add(eyePL);
+
+      const eyeWR = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.9, 0.08), eyeWhiteMat);
+      eyeWR.position.set(2.4, eyeY, eyeZ);
+      const eyePR = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.9, 0.1), pupilMat);
+      eyePR.position.set(1.35, eyeY, eyeZ);
+      headGroup.add(eyeWR); headGroup.add(eyePR);
+
+      // Alis & Mulut
+      const browMat = createMat(colors.eyebrow);
+      const browL = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.45, 0.1), browMat);
+      browL.position.set(-1.85, eyeY + 1.15, eyeZ);
+      const browR = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.45, 0.1), browMat);
+      browR.position.set(1.85, eyeY + 1.15, eyeZ);
+      headGroup.add(browL); headGroup.add(browR);
+
+      const mouth = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.6, 0.08), createMat(0x6e3d23));
+      mouth.position.set(0, 1.4, eyeZ);
+      headGroup.add(mouth);
+
+      character.add(headGroup);
+
+      // ----------------------------------------------------
+      // 2. BADAN & BAJU CYAN RAPAT (Tanpa V-Neck)
+      // ----------------------------------------------------
+      const torsoGroup = new THREE.Group();
+      torsoGroup.position.set(0, 18, 0);
+
+      const cyanBody = new THREE.Mesh(new THREE.BoxGeometry(8, 12, 4), createMat(colors.shirt));
+      cyanBody.castShadow = true;
+      torsoGroup.add(cyanBody);
+
+      // ----------------------------------------------------
+      // 3. TAS SELEMPANG NETHERITE KUNO 3D
+      // ----------------------------------------------------
+      const bagGroup = new THREE.Group();
+      const matStrap = createMat(colors.strap);
+      const matBag   = createMat(colors.bag);
+      const matLava  = createMat(colors.lava, 0x881100);
+
+      const strapF = new THREE.Mesh(new THREE.BoxGeometry(1.25, 14.8, 0.45), matStrap);
+      strapF.position.set(-0.3, 0.2, 2.18);
+      strapF.rotation.z = -0.58;
+      bagGroup.add(strapF);
+
+      const strapB = new THREE.Mesh(new THREE.BoxGeometry(1.25, 14.8, 0.45), matStrap);
+      strapB.position.set(-0.3, 0.2, -2.18);
+      strapB.rotation.z = -0.58;
+      bagGroup.add(strapB);
+
+      const strapTop = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.45, 4.45), matStrap);
+      strapTop.position.set(2.8, 6.15, 0);
+      bagGroup.add(strapTop);
+
+      const pouch = new THREE.Mesh(new THREE.BoxGeometry(2.6, 5.4, 4.5), matBag);
+      pouch.position.set(-4.45, -3.2, 0.4);
+      bagGroup.add(pouch);
+
+      const flap = new THREE.Mesh(new THREE.BoxGeometry(2.7, 2.6, 4.6), matStrap);
+      flap.position.set(-4.45, -1.9, 0.4);
+      bagGroup.add(flap);
+
+      const buckle = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.2, 1.4), matLava);
+      buckle.position.set(-5.7, -3.0, 0.4);
+      bagGroup.add(buckle);
+
+      torsoGroup.add(bagGroup);
+      character.add(torsoGroup);
+
+      // ----------------------------------------------------
+      // 4. LENGAN KIRI & KANAN (Bahu Tertutup Cyan)
+      // ----------------------------------------------------
+      function createArm(isLeft) {
+        const armPivot = new THREE.Group();
+        armPivot.position.set(isLeft ? -6 : 6, 22, 0);
+
+        const armSkin = new THREE.Mesh(new THREE.BoxGeometry(4, 12, 4), createMat(colors.skin));
+        armSkin.geometry.translate(0, -4, 0);
+        armSkin.castShadow = true;
+        armPivot.add(armSkin);
+
+        // Lengan baju cyan menutup penuh bahu atas
+        const sleeve = new THREE.Mesh(new THREE.BoxGeometry(4.1, 4.5, 4.1), createMat(colors.shirt));
+        sleeve.geometry.translate(0, -0.25, 0);
+        sleeve.castShadow = true;
+        armPivot.add(sleeve);
+
+        return armPivot;
+      }
+
+      const leftArm = createArm(true);
+      const rightArm = createArm(false);
+      character.add(leftArm);
+      character.add(rightArm);
+
+      // ----------------------------------------------------
+      // 5. KAKI & CELANA BIRU STEVE
+      // ----------------------------------------------------
+      function createLeg(isLeft) {
+        const legPivot = new THREE.Group();
+        legPivot.position.set(isLeft ? -2 : 2, 12, 0);
+
+        const legMesh = new THREE.Mesh(new THREE.BoxGeometry(4, 12, 4), createMat(colors.pants));
+        legMesh.geometry.translate(0, -6, 0);
+        legMesh.castShadow = true;
+        legPivot.add(legMesh);
+
+        const shoe = new THREE.Mesh(new THREE.BoxGeometry(4.1, 2.5, 4.1), createMat(colors.shoes));
+        shoe.geometry.translate(0, -10.8, 0);
+        legPivot.add(shoe);
+
+        return legPivot;
+      }
+
+      const leftLeg = createLeg(true);
+      const rightLeg = createLeg(false);
+      character.add(leftLeg);
+      character.add(rightLeg);
+
+      // ----------------------------------------------------
+      // 6. FUNGSI UPDATE ANIMASI
+      // ----------------------------------------------------
+      character.updateAnimation = function (time, isWalking = true) {
+        if (!isWalking) {
+          leftArm.rotation.x = 0; rightArm.rotation.x = 0;
+          leftLeg.rotation.x = 0; rightLeg.rotation.x = 0;
+          headGroup.rotation.y = 0;
+          return;
+        }
+        const t = time * 5;
+        leftArm.rotation.x = Math.sin(t) * 0.7;
+        rightArm.rotation.x = -Math.sin(t) * 0.7;
+        leftLeg.rotation.x = -Math.sin(t) * 0.7;
+        rightLeg.rotation.x = Math.sin(t) * 0.7;
+        headGroup.rotation.y = Math.sin(t * 0.5) * 0.08;
+      };
+
+      return character;
+    }
+    // =========================================================================
+    // AKHIR MODUL KARAKTER
+    // =========================================================================
+
+
+    // CONTOH PEMANGGILAN DI PROYEK WEB ANDA:
+    const canvas = document.getElementById("myCanvas");
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x151620);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(24, 22, 36);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 16, 0);
+
+    // Cahaya
+    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.9);
+    sun.position.set(20, 40, 25);
+    scene.add(sun);
+    scene.add(new THREE.GridHelper(30, 30, 0x55ff55, 0x333344));
+
+    // PANGGIL KARAKTER DI SINI:
+    const mySteve = createMinecraftSteve();
+    scene.add(mySteve);
+
+    // Loop Animasi
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Jalankan animasi karakter
+      mySteve.updateAnimation(clock.getElapsedTime(), true);
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
